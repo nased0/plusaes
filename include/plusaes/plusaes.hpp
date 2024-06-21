@@ -556,8 +556,7 @@ std::bitset<N> make_bitset(const unsigned char * bytes, const std::size_t bytes_
 }
 
 /** Algorithm 3 @private */
-inline std::vector<unsigned char> gctr(const detail::RoundKeys & rkeys, const Block & ICB, const unsigned char * X, const std::size_t X_size)
-{
+inline std::vector<unsigned char> gctr(const detail::RoundKeys & rkeys, const Block & ICB, const unsigned char * X, const std::size_t X_size){
     if (!X || X_size == 0) {
         return std::vector<unsigned char>();
     }
