@@ -503,7 +503,7 @@ std::bitset<N> inc32(const std::bitset<N> X) {
 
 /** Algorithm 1 @private */
 inline Block mul_blocks(const Block X, const Block Y) {
-    const bitset128 R = (std::bitset<8>("11100001") || std::bitset<120>());
+    const bitset128 R = (std::bitset<8>(0xe1) || std::bitset<120>());
 
     bitset128 X_bits = X.to_bits();
     bitset128 Z;
@@ -556,7 +556,8 @@ std::bitset<N> make_bitset(const unsigned char * bytes, const std::size_t bytes_
 }
 
 /** Algorithm 3 @private */
-inline std::vector<unsigned char> gctr(const detail::RoundKeys & rkeys, const Block & ICB, const unsigned char * X, const std::size_t X_size){
+inline std::vector<unsigned char> gctr(const detail::RoundKeys & rkeys, const Block & ICB, const unsigned char * X, const std::size_t X_size)
+{
     if (!X || X_size == 0) {
         return std::vector<unsigned char>();
     }
@@ -576,7 +577,7 @@ inline std::vector<unsigned char> gctr(const detail::RoundKeys & rkeys, const Bl
 
             // CIPH
             Block eCB;
-            encrypt_state(rkeys, CB.data(), eCB.data());
+            detail::encrypt_state(rkeys, CB.data(), eCB.data());
 
             // Y
             int op_size = 0;
@@ -612,7 +613,7 @@ inline void push_back_zero_bits(std::vector<unsigned char>& bytes, const std::si
 
 inline Block calc_H(const RoundKeys & rkeys) {
     std::vector<unsigned char> H_raw(gcm::kBlockByteSize);
-    encrypt_state(rkeys, &H_raw[0], &H_raw[0]);
+    detail::encrypt_state(rkeys, &H_raw[0], &H_raw[0]);
     return gcm::Block(H_raw);
 }
 
@@ -807,7 +808,7 @@ inline bool check_padding(const unsigned long padding, const unsigned char data[
     }
 
     for (unsigned long i = 0; i < padding; ++i) {
-        if (data[kStateSize - 1 - i] != padding) {
+        if ((unsigned long)data[kStateSize - 1 - i] != padding) {
             return false;
         }
     }
@@ -980,7 +981,7 @@ inline Error encrypt_cbc(
     const unsigned long data_size,
     const unsigned char * key,
     const unsigned long key_size,
-    const unsigned char (* iv)[16],
+    const unsigned char iv[16],
     unsigned char * encrypted,
     const unsigned long encrypted_size,
     const bool pads
@@ -1008,7 +1009,7 @@ inline Error encrypt_cbc(
         memcpy(s, data, data_size);
     }
     if (iv) {
-        detail::xor_data(s, *iv);
+        detail::xor_data(s, iv);
     }
     detail::encrypt_state(rkeys, s, encrypted);
 
